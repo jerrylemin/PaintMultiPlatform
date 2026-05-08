@@ -4,10 +4,13 @@
 
 - Scanned the repository and read README/docs before editing.
 - Identified why the app appeared to only draw `Line`.
-- Replaced hidden picker-based toolbar with visible tool buttons.
-- Added visible stroke color buttons.
-- Added visible fill color buttons, including `Transparent`.
-- Added explicit fill checkbox, thickness slider, undo, redo, clear, save, load, export PNG, and export JPEG controls.
+- Rebuilt the page layout into three visible zones: header, toolbar, canvas.
+- Moved toolbar into its own `Auto` grid row above the canvas.
+- Added a horizontal scroll toolbar so all controls are reachable on Android and visible on Windows.
+- Added selected-state color feedback for tool buttons.
+- Kept visible stroke color buttons.
+- Kept visible fill color buttons, including `Transparent`.
+- Kept explicit fill checkbox, thickness slider, undo, redo, clear, save, load, export PNG, and export JPEG controls.
 - Updated `MainViewModel` to expose required properties:
   - `ObservableCollection<DrawingShape> Shapes`
   - `ShapeKind SelectedTool`
@@ -45,8 +48,6 @@
 ## Changed Files
 
 - `BasicDrawingApp/ViewModels/MainViewModel.cs`
-- `BasicDrawingApp/Controls/DrawingCanvasView.cs`
-- `BasicDrawingApp/Controls/DrawingRenderer.cs`
 - `BasicDrawingApp/Views/MainPage.xaml`
 - `README.md`
 - `docs/codex_project_audit.md`

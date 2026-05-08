@@ -4,25 +4,24 @@
 
 - The project already existed as a .NET MAUI app named `BasicDrawingApp`.
 - The app compiled, but the drawing experience was not acceptable for grading.
-- The toolbar used `Picker` controls for tool/color selection, so the shape tools were not obvious on Windows or Android.
-- The default selected tool was `Line`, and users could easily miss the hidden picker choices. This made the app appear to only draw lines.
-- `DrawingCanvasView` did not subscribe to `ObservableCollection<DrawingShape>.CollectionChanged`, so redraw after add/undo/redo/load was not reliable.
-- Preview shape was stored only inside the canvas control, not in `MainViewModel`, so it did not match the required MVVM state.
+- The toolbar had been changed to visible controls, but it still lived in the same `Grid` row as the canvas on desktop: `RowDefinitions="Auto,*"` and `ColumnDefinitions="340,*"`.
+- `ToolScroll` was placed at `Grid.Row="1"` and the canvas was also placed at `Grid.Row="1"` in another column. On wide Windows layouts, this made the toolbar a side panel. In the user's run, the visible area showed header/status and the canvas, while the left toolbar column was effectively not visible.
+- The old `MainPage.xaml.cs` moved toolbar/canvas only when `Width < 760`; otherwise it kept the side-panel layout. This was the real layout reason the user saw only title, status, and white canvas.
+- Toolbar was not `IsVisible=false`.
+- Toolbar commands were bound to `MainViewModel`.
+- Toolbar did not have a tiny `HeightRequest`; it was misplaced in the desktop grid structure.
 
 ## Why It Looked Like Only Line Worked
 
 - `MainViewModel.SelectedTool` defaulted to `ShapeKind.Line`.
-- The old UI hid tool selection inside a compact `Picker`; there were no clear buttons for Point, Rectangle, Square, Ellipse, or Circle.
-- The canvas only invalidated during interaction and did not listen to shape collection changes, so committed non-line shapes could fail to appear clearly after release.
-- Preview state lived in the control instead of the ViewModel, making it harder to reason about redraw and state updates.
+- Because the toolbar was not visible in the user's app window, the user could not press Point, Rectangle, Square, Ellipse, or Circle.
+- Canvas received the default `SelectedTool`, so drag gestures created lines.
 
 ## Missing Or Weak Features
 
-- Visible segmented-style tool buttons were missing.
-- Visible fill/stroke color buttons were missing.
-- The status area did not show enough explicit current state.
-- Canvas redraw was not wired directly to `Shapes` and `PreviewShape`.
-- Mobile layout existed but the toolbar was not clear enough for touch use.
+- Toolbar needed to be a guaranteed visible row, not a side column competing with the canvas.
+- Tool buttons needed selected-state visual feedback.
+- Android needed a scrollable toolbar to avoid clipping.
 
 ## Responsibility Map
 
@@ -38,11 +37,12 @@
 
 ## Decisions In This Fix
 
-- Replaced hidden tool/color pickers with explicit buttons.
-- Added `Shapes` and `PreviewShape` bindings to the canvas.
-- Made canvas subscribe to shape collection changes so every add/undo/redo/load redraws.
-- Kept `GraphicsView` for live drawing and SkiaSharp for image export.
-- Kept Windows and Android target frameworks only.
+- Rebuilt `MainPage.xaml` as exactly three rows: header, toolbar, canvas.
+- Put toolbar in `Grid.Row="1"` and canvas in `Grid.Row="2"` so they cannot overlap or hide each other.
+- Wrapped toolbar in a horizontal `ScrollView`; on Windows it is immediately visible, and on Android it can scroll instead of overflowing.
+- Added selected tool background bindings in `MainViewModel`.
+- Removed the old size-changing row/column movement logic from `MainPage.xaml.cs`.
+- Kept existing `GraphicsView` canvas, binary serializer, and SkiaSharp export services.
 
 ## Current Known Notes
 

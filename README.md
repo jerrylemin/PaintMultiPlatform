@@ -36,6 +36,16 @@ Demo video requirements: Unlisted, under 5 minutes, no voiceover, no music.
 - Export the full white canvas to PNG or JPEG.
 - Responsive layout for Windows desktop and Android screens.
 
+## Interface After The Fix
+
+The main screen has three visible zones:
+
+- Header: app title and short status text.
+- Toolbar: visible immediately under the header, with tool buttons, stroke colors, fill colors, fill option, thickness slider, and action buttons.
+- Canvas: a white drawing area with a dark border under the toolbar.
+
+The toolbar is a horizontal scroll area. On Windows it is visible at the top of the app. On Android it can be swiped horizontally so controls do not overflow off-screen.
+
 ## How To Open In Visual Studio
 
 1. Open Visual Studio with .NET MAUI workload installed.

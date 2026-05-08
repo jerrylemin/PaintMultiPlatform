@@ -15,6 +15,9 @@ dotnet build BasicDrawingApp\BasicDrawingApp.csproj -f net9.0-windows10.0.19041.
 dotnet build BasicDrawingApp\BasicDrawingApp.csproj -f net9.0-android
 git status --short
 dotnet build BasicDrawingApp\BasicDrawingApp.csproj
+dotnet build BasicDrawingApp\BasicDrawingApp.csproj
+dotnet format BasicDrawingApp\BasicDrawingApp.csproj --no-restore
+dotnet build BasicDrawingApp\BasicDrawingApp.csproj
 ```
 
 ## Build Result
@@ -23,6 +26,8 @@ dotnet build BasicDrawingApp\BasicDrawingApp.csproj
 - Windows final build: PASS, `0 Warning(s), 0 Error(s)`.
 - Android final build: PASS, `0 Warning(s), 0 Error(s)`.
 - Full project build: PASS, `0 Warning(s), 0 Error(s)`.
+- Full project build after 3-row toolbar layout: PASS, `0 Warning(s), 0 Error(s)`.
+- Final full project build after format and fill logic check: PASS, `0 Warning(s), 0 Error(s)`.
 - Git status: unavailable because this workspace is not a git repository.
 
 ## Environment Note
@@ -51,6 +56,7 @@ dotnet build BasicDrawingApp\BasicDrawingApp.csproj
 
 ## Remaining Manual Checks
 
-- Run on Windows Machine in Visual Studio and draw each shape.
-- Run on Android Emulator and verify touch layout.
+- Run on Windows Machine in Visual Studio and confirm the app opens with header, toolbar, and canvas all visible.
+- Draw each shape from the visible toolbar.
+- Run on Android Emulator and verify the horizontal toolbar scrolls and canvas remains below it.
 - Verify Android file picker behavior for `.bdraw` on the selected emulator file manager.
