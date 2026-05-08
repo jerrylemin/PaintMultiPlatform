@@ -194,7 +194,9 @@ public sealed class DrawingCanvasView : GraphicsView
             StrokeColor = SelectedStrokeColor,
             FillColor = SelectedFillColor,
             StrokeThickness = (float)StrokeThickness,
-            IsFilled = IsFillEnabled && SelectedTool is not ShapeKind.Line,
+            IsFilled = IsFillEnabled
+                && SelectedFillColor != Colors.Transparent
+                && SelectedTool is ShapeKind.Rectangle or ShapeKind.Square or ShapeKind.Ellipse or ShapeKind.Circle,
             CreatedAt = DateTime.UtcNow
         };
     }
