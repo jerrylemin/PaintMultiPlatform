@@ -1,52 +1,50 @@
 # Codex Architecture Plan
 
-## Architecture
+## Current Architecture
 
-The app is organized as a small MVVM MAUI project:
+The app stays in a simple MVVM structure:
 
-- `Models`: drawing data objects.
-- `ViewModels`: selected tool, colors, thickness, preview shape, shape collection, and commands.
-- `Views`: XAML layout and responsive desktop/mobile switching.
-- `Controls`: reusable drawing canvas and render helper.
-- `Services`: binary serialization, image export, and file path/picker handling.
+- `Models`: `DrawingShape`, `ShapeKind`, `DrawingDocument`.
+- `ViewModels`: `MainViewModel`, commands, selected tool/color/thickness/fill state.
+- `Views`: `MainPage.xaml` and `MainPage.xaml.cs`.
+- `Controls`: `DrawingCanvasView` and `DrawingRenderer`.
+- `Services`: `DrawingBinarySerializer`, `FilePickerService`, `ImageExportService`.
 
-## Main Flow
+## UI Direction
 
-1. User taps a toolbar button in `MainPage.xaml`.
-2. `MainViewModel` updates `SelectedTool`, `SelectedStrokeColor`, `SelectedFillColor`, `StrokeThickness`, or `IsFillEnabled`.
-3. `DrawingCanvasView` receives bound state.
-4. On pointer/touch start and drag, canvas creates or updates `PreviewShape`.
-5. `PreviewShape` is bound back to `MainViewModel`.
-6. On release, canvas sends a `DrawingShape` to `AddShapeCommand`.
-7. `MainViewModel.Shapes` changes and the canvas redraws through its `CollectionChanged` subscription.
+The visual direction is a light, modern drawing workspace inspired by the organization of Paint-style apps, without copying Paint directly.
 
-## Render Plan
+The page has:
 
-- `DrawingRenderer.DrawShape(ICanvas, DrawingShape)` handles live MAUI drawing.
-- `DrawingRenderer.DrawShape(SKCanvas, DrawingShape)` handles export drawing.
-- Point, Line, Rectangle, Square, Ellipse, and Circle are all handled by `switch (shape.Kind)`.
-- Square and Circle use `GetSquareRect`, based on `min(abs(dx), abs(dy))`.
+- Header: app title, short workspace label, status summary.
+- Toolbar: horizontally scrollable ribbon with grouped tools.
+- Canvas: framed white drawing surface on a quiet neutral background.
 
-## Save/Load Plan
+Toolbar groups:
 
-`DrawingBinarySerializer` uses `BinaryWriter` and `BinaryReader`.
+- Tools: Point, Line, Rectangle, Square, Ellipse, Circle.
+- Stroke: compact color swatches with selected border.
+- Fill: `No Fill` plus color swatches with selected border.
+- Thickness: slider, `px` value, and live line preview.
+- Actions: undo, redo, clear, save/load, export PNG/JPEG.
 
-Format:
+## Fill And Stroke Rules
 
-- String magic: `BDRAW`
-- Int32 version: `1`
-- Single canvas width
-- Single canvas height
-- Int32 shape count
-- Per shape: id, kind, startX, startY, endX, endY, stroke RGBA, fill RGBA, thickness, isFilled, created ticks
+- Stroke color applies to all shapes, including point and line.
+- Fill color applies only to Rectangle, Square, Ellipse, and Circle.
+- `No Fill` maps to `Colors.Transparent`.
+- Fill only appears when `IsFillEnabled` is true and selected fill is not `No Fill`.
+- Point is rendered as a visible dot based on stroke color/thickness.
 
-Invalid magic, unsupported version, negative count, or truncated file becomes `InvalidDataException`.
+## File And Export Plan
 
-## Export Plan
+- `.bdraw` save/load stays binary through `DrawingBinarySerializer`.
+- Windows save/export uses `FileSavePicker` so users can browse and choose a local path.
+- Windows load uses MAUI `FilePicker`.
+- Android `.bdraw` save uses app storage.
+- Android image export writes to app storage, publishes to MediaStore Pictures/BasicDrawingApp when supported, and opens share sheet.
 
-`ImageExportService` renders the full document to an `SKBitmap` with a white background and writes:
+## Build Target
 
-- PNG quality 100
-- JPEG quality 90
-
-Windows uses Pictures/AppData. Android uses app data and share sheet.
+- `net9.0-windows10.0.19041.0`
+- `net9.0-android`
