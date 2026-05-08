@@ -27,7 +27,11 @@ public sealed class ImageExportService
     {
         int width = Math.Max(1, (int)MathF.Ceiling(document.CanvasWidth));
         int height = Math.Max(1, (int)MathF.Ceiling(document.CanvasHeight));
-        string filePath = _filePickerService.CreateExportPath(extension);
+        string? filePath = await _filePickerService.PickExportPathAsync(extension);
+        if (string.IsNullOrWhiteSpace(filePath))
+        {
+            throw new OperationCanceledException("Export canceled.");
+        }
 
         using SKBitmap bitmap = new(width, height);
         using SKCanvas canvas = new(bitmap);
@@ -41,13 +45,15 @@ public sealed class ImageExportService
         await stream.FlushAsync();
 
 #if ANDROID
+        string resultPath = await _filePickerService.PublishImageAsync(filePath, extension);
         await Share.Default.RequestAsync(new ShareFileRequest
         {
             Title = "Share exported drawing",
             File = new ShareFile(filePath)
         });
+#else
+        string resultPath = filePath;
 #endif
-
-        return filePath;
+        return resultPath;
     }
 }
