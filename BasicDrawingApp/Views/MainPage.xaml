@@ -10,96 +10,88 @@
     Title="Basic Drawing App"
     BackgroundColor="#E9EEF3">
 
-    <Grid x:Name="RootGrid" Padding="12" ColumnDefinitions="340,*" ColumnSpacing="12" RowDefinitions="Auto,*" RowSpacing="12">
-        <Border Grid.ColumnSpan="2" Padding="12" BackgroundColor="#FFFFFF" Stroke="#CBD5E1" StrokeThickness="1">
-            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
-                <VerticalStackLayout Spacing="2">
-                    <Label FontAttributes="Bold" FontSize="20" Text="Basic Drawing App" />
-                    <Label Text="{Binding StatusMessage}" TextColor="#334155" LineBreakMode="TailTruncation" />
-                </VerticalStackLayout>
-                <Label Grid.Column="1" FontAttributes="Bold" Text="{Binding ShapeCount, StringFormat='Shapes: {0}'}" VerticalOptions="Center" />
+    <Grid Padding="12" RowDefinitions="Auto,Auto,*" RowSpacing="10">
+        <Border Grid.Row="0" Padding="12" BackgroundColor="#FFFFFF" Stroke="#CBD5E1" StrokeThickness="1">
+            <Grid ColumnDefinitions="Auto,*" ColumnSpacing="16">
+                <Label FontAttributes="Bold" FontSize="20" Text="Basic Drawing App" VerticalOptions="Center" />
+                <Label Grid.Column="1" Text="{Binding StatusMessage}" TextColor="#334155" LineBreakMode="TailTruncation" VerticalOptions="Center" />
             </Grid>
         </Border>
 
-        <ScrollView x:Name="ToolScroll" Grid.Row="1">
-            <VerticalStackLayout Spacing="12">
-                <Border Padding="12" BackgroundColor="#FFFFFF" Stroke="#CBD5E1" StrokeThickness="1">
-                    <VerticalStackLayout Spacing="10">
-                        <Label FontAttributes="Bold" Text="Drawing tools" />
-                        <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto,Auto" ColumnSpacing="8" RowSpacing="8">
-                            <Button Text="Point" Command="{Binding SelectToolCommand}" CommandParameter="{x:Static models:ShapeKind.Point}" />
-                            <Button Grid.Column="1" Text="Line" Command="{Binding SelectToolCommand}" CommandParameter="{x:Static models:ShapeKind.Line}" />
-                            <Button Grid.Row="1" Text="Rectangle" Command="{Binding SelectToolCommand}" CommandParameter="{x:Static models:ShapeKind.Rectangle}" />
-                            <Button Grid.Row="1" Grid.Column="1" Text="Square" Command="{Binding SelectToolCommand}" CommandParameter="{x:Static models:ShapeKind.Square}" />
-                            <Button Grid.Row="2" Text="Ellipse" Command="{Binding SelectToolCommand}" CommandParameter="{x:Static models:ShapeKind.Ellipse}" />
-                            <Button Grid.Row="2" Grid.Column="1" Text="Circle" Command="{Binding SelectToolCommand}" CommandParameter="{x:Static models:ShapeKind.Circle}" />
+        <Border Grid.Row="1" Padding="10" BackgroundColor="#FFFFFF" Stroke="#CBD5E1" StrokeThickness="1">
+            <ScrollView Orientation="Horizontal" HorizontalScrollBarVisibility="Always">
+                <HorizontalStackLayout Spacing="14">
+                    <VerticalStackLayout WidthRequest="440" Spacing="8">
+                        <Label FontAttributes="Bold" Text="Tools" />
+                        <Grid ColumnDefinitions="*,*,*" RowDefinitions="Auto,Auto" ColumnSpacing="8" RowSpacing="8">
+                            <Button Text="Point" BackgroundColor="{Binding PointToolBackground}" TextColor="White" Command="{Binding SelectToolCommand}" CommandParameter="{x:Static models:ShapeKind.Point}" />
+                            <Button Grid.Column="1" Text="Line" BackgroundColor="{Binding LineToolBackground}" TextColor="White" Command="{Binding SelectToolCommand}" CommandParameter="{x:Static models:ShapeKind.Line}" />
+                            <Button Grid.Column="2" Text="Rectangle" BackgroundColor="{Binding RectangleToolBackground}" TextColor="White" Command="{Binding SelectToolCommand}" CommandParameter="{x:Static models:ShapeKind.Rectangle}" />
+                            <Button Grid.Row="1" Text="Square" BackgroundColor="{Binding SquareToolBackground}" TextColor="White" Command="{Binding SelectToolCommand}" CommandParameter="{x:Static models:ShapeKind.Square}" />
+                            <Button Grid.Row="1" Grid.Column="1" Text="Ellipse" BackgroundColor="{Binding EllipseToolBackground}" TextColor="White" Command="{Binding SelectToolCommand}" CommandParameter="{x:Static models:ShapeKind.Ellipse}" />
+                            <Button Grid.Row="1" Grid.Column="2" Text="Circle" BackgroundColor="{Binding CircleToolBackground}" TextColor="White" Command="{Binding SelectToolCommand}" CommandParameter="{x:Static models:ShapeKind.Circle}" />
                         </Grid>
                     </VerticalStackLayout>
-                </Border>
 
-                <Border Padding="12" BackgroundColor="#FFFFFF" Stroke="#CBD5E1" StrokeThickness="1">
-                    <VerticalStackLayout Spacing="10">
-                        <Label FontAttributes="Bold" Text="{Binding StrokeColorName, StringFormat='Stroke color: {0}'}" />
-                        <Grid ColumnDefinitions="*,*,*" RowDefinitions="Auto,Auto,Auto" ColumnSpacing="8" RowSpacing="8">
-                            <Button Text="Black" Command="{Binding SelectStrokeColorCommand}" CommandParameter="Black" BackgroundColor="#111827" />
-                            <Button Grid.Column="1" Text="Red" Command="{Binding SelectStrokeColorCommand}" CommandParameter="Red" BackgroundColor="#DC2626" />
-                            <Button Grid.Column="2" Text="Green" Command="{Binding SelectStrokeColorCommand}" CommandParameter="Green" BackgroundColor="#16A34A" />
-                            <Button Grid.Row="1" Text="Blue" Command="{Binding SelectStrokeColorCommand}" CommandParameter="Blue" BackgroundColor="#2563EB" />
-                            <Button Grid.Row="1" Grid.Column="1" Text="Yellow" Command="{Binding SelectStrokeColorCommand}" CommandParameter="Yellow" BackgroundColor="#CA8A04" />
-                            <Button Grid.Row="1" Grid.Column="2" Text="Purple" Command="{Binding SelectStrokeColorCommand}" CommandParameter="Purple" BackgroundColor="#7C3AED" />
-                            <Button Grid.Row="2" Text="Orange" Command="{Binding SelectStrokeColorCommand}" CommandParameter="Orange" BackgroundColor="#EA580C" />
+                    <VerticalStackLayout WidthRequest="360" Spacing="8">
+                        <Label FontAttributes="Bold" Text="{Binding StrokeColorName, StringFormat='Stroke: {0}'}" />
+                        <Grid ColumnDefinitions="*,*,*,*" RowDefinitions="Auto,Auto" ColumnSpacing="8" RowSpacing="8">
+                            <Button Text="Black" BackgroundColor="#111827" TextColor="White" Command="{Binding SelectStrokeColorCommand}" CommandParameter="Black" />
+                            <Button Grid.Column="1" Text="Red" BackgroundColor="#DC2626" TextColor="White" Command="{Binding SelectStrokeColorCommand}" CommandParameter="Red" />
+                            <Button Grid.Column="2" Text="Green" BackgroundColor="#16A34A" TextColor="White" Command="{Binding SelectStrokeColorCommand}" CommandParameter="Green" />
+                            <Button Grid.Column="3" Text="Blue" BackgroundColor="#2563EB" TextColor="White" Command="{Binding SelectStrokeColorCommand}" CommandParameter="Blue" />
+                            <Button Grid.Row="1" Text="Yellow" BackgroundColor="#CA8A04" TextColor="White" Command="{Binding SelectStrokeColorCommand}" CommandParameter="Yellow" />
+                            <Button Grid.Row="1" Grid.Column="1" Text="Purple" BackgroundColor="#7C3AED" TextColor="White" Command="{Binding SelectStrokeColorCommand}" CommandParameter="Purple" />
+                            <Button Grid.Row="1" Grid.Column="2" Text="Orange" BackgroundColor="#EA580C" TextColor="White" Command="{Binding SelectStrokeColorCommand}" CommandParameter="Orange" />
                         </Grid>
                     </VerticalStackLayout>
-                </Border>
 
-                <Border Padding="12" BackgroundColor="#FFFFFF" Stroke="#CBD5E1" StrokeThickness="1">
-                    <VerticalStackLayout Spacing="10">
-                        <Label FontAttributes="Bold" Text="{Binding FillColorName, StringFormat='Fill color: {0}'}" />
-                        <Grid ColumnDefinitions="*,*,*" RowDefinitions="Auto,Auto,Auto" ColumnSpacing="8" RowSpacing="8">
-                            <Button Text="Transparent" Command="{Binding SelectFillColorCommand}" CommandParameter="Transparent" BackgroundColor="#64748B" />
-                            <Button Grid.Column="1" Text="Black" Command="{Binding SelectFillColorCommand}" CommandParameter="Black" BackgroundColor="#111827" />
-                            <Button Grid.Column="2" Text="Red" Command="{Binding SelectFillColorCommand}" CommandParameter="Red" BackgroundColor="#DC2626" />
-                            <Button Grid.Row="1" Text="Green" Command="{Binding SelectFillColorCommand}" CommandParameter="Green" BackgroundColor="#16A34A" />
-                            <Button Grid.Row="1" Grid.Column="1" Text="Blue" Command="{Binding SelectFillColorCommand}" CommandParameter="Blue" BackgroundColor="#2563EB" />
-                            <Button Grid.Row="1" Grid.Column="2" Text="Yellow" Command="{Binding SelectFillColorCommand}" CommandParameter="Yellow" BackgroundColor="#CA8A04" />
-                            <Button Grid.Row="2" Text="Purple" Command="{Binding SelectFillColorCommand}" CommandParameter="Purple" BackgroundColor="#7C3AED" />
-                            <Button Grid.Row="2" Grid.Column="1" Text="Orange" Command="{Binding SelectFillColorCommand}" CommandParameter="Orange" BackgroundColor="#EA580C" />
+                    <VerticalStackLayout WidthRequest="440" Spacing="8">
+                        <Label FontAttributes="Bold" Text="{Binding FillColorName, StringFormat='Fill: {0}'}" />
+                        <Grid ColumnDefinitions="*,*,*,*" RowDefinitions="Auto,Auto" ColumnSpacing="8" RowSpacing="8">
+                            <Button Text="Transparent" BackgroundColor="#64748B" TextColor="White" Command="{Binding SelectFillColorCommand}" CommandParameter="Transparent" />
+                            <Button Grid.Column="1" Text="Black" BackgroundColor="#111827" TextColor="White" Command="{Binding SelectFillColorCommand}" CommandParameter="Black" />
+                            <Button Grid.Column="2" Text="Red" BackgroundColor="#DC2626" TextColor="White" Command="{Binding SelectFillColorCommand}" CommandParameter="Red" />
+                            <Button Grid.Column="3" Text="Green" BackgroundColor="#16A34A" TextColor="White" Command="{Binding SelectFillColorCommand}" CommandParameter="Green" />
+                            <Button Grid.Row="1" Text="Blue" BackgroundColor="#2563EB" TextColor="White" Command="{Binding SelectFillColorCommand}" CommandParameter="Blue" />
+                            <Button Grid.Row="1" Grid.Column="1" Text="Yellow" BackgroundColor="#CA8A04" TextColor="White" Command="{Binding SelectFillColorCommand}" CommandParameter="Yellow" />
+                            <Button Grid.Row="1" Grid.Column="2" Text="Purple" BackgroundColor="#7C3AED" TextColor="White" Command="{Binding SelectFillColorCommand}" CommandParameter="Purple" />
+                            <Button Grid.Row="1" Grid.Column="3" Text="Orange" BackgroundColor="#EA580C" TextColor="White" Command="{Binding SelectFillColorCommand}" CommandParameter="Orange" />
                         </Grid>
+                    </VerticalStackLayout>
 
+                    <VerticalStackLayout WidthRequest="300" Spacing="8">
+                        <Label FontAttributes="Bold" Text="Options" />
                         <HorizontalStackLayout Spacing="8" VerticalOptions="Center">
                             <CheckBox IsChecked="{Binding IsFillEnabled}" />
                             <Label Text="Enable Fill" VerticalOptions="Center" />
                         </HorizontalStackLayout>
-                    </VerticalStackLayout>
-                </Border>
-
-                <Border Padding="12" BackgroundColor="#FFFFFF" Stroke="#CBD5E1" StrokeThickness="1">
-                    <VerticalStackLayout Spacing="10">
-                        <Label FontAttributes="Bold" Text="{Binding StrokeThicknessText, StringFormat='Stroke thickness: {0}'}" />
+                        <Label FontAttributes="Bold" Text="{Binding StrokeThicknessText, StringFormat='Thickness: {0}'}" />
                         <Slider Minimum="1" Maximum="20" Value="{Binding StrokeThickness}" />
                     </VerticalStackLayout>
-                </Border>
 
-                <Border Padding="12" BackgroundColor="#FFFFFF" Stroke="#CBD5E1" StrokeThickness="1">
-                    <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto,Auto,Auto" ColumnSpacing="8" RowSpacing="8">
-                        <Button Text="Undo" Command="{Binding UndoCommand}" />
-                        <Button Grid.Column="1" Text="Redo" Command="{Binding RedoCommand}" />
-                        <Button Grid.Row="1" Text="Clear" Command="{Binding ClearCommand}" />
-                        <Button Grid.Row="1" Grid.Column="1" Text="Save .bdraw" Command="{Binding SaveCommand}" />
-                        <Button Grid.Row="2" Text="Load .bdraw" Command="{Binding LoadCommand}" />
-                        <Button Grid.Row="2" Grid.Column="1" Text="Export PNG" Command="{Binding ExportPngCommand}" />
-                        <Button Grid.Row="3" Grid.ColumnSpan="2" Text="Export JPEG" Command="{Binding ExportJpegCommand}" />
-                    </Grid>
-                </Border>
-            </VerticalStackLayout>
-        </ScrollView>
+                    <VerticalStackLayout WidthRequest="460" Spacing="8">
+                        <Label FontAttributes="Bold" Text="Actions" />
+                        <Grid ColumnDefinitions="*,*,*,*" RowDefinitions="Auto,Auto" ColumnSpacing="8" RowSpacing="8">
+                            <Button Text="Undo" Command="{Binding UndoCommand}" />
+                            <Button Grid.Column="1" Text="Redo" Command="{Binding RedoCommand}" />
+                            <Button Grid.Column="2" Text="Clear" Command="{Binding ClearCommand}" />
+                            <Button Grid.Column="3" Text="Save .bdraw" Command="{Binding SaveCommand}" />
+                            <Button Grid.Row="1" Text="Load .bdraw" Command="{Binding LoadCommand}" />
+                            <Button Grid.Row="1" Grid.Column="1" Text="Export PNG" Command="{Binding ExportPngCommand}" />
+                            <Button Grid.Row="1" Grid.Column="2" Grid.ColumnSpan="2" Text="Export JPEG" Command="{Binding ExportJpegCommand}" />
+                        </Grid>
+                    </VerticalStackLayout>
+                </HorizontalStackLayout>
+            </ScrollView>
+        </Border>
 
-        <Border x:Name="CanvasBorder" Grid.Row="1" Grid.Column="1" Padding="2" BackgroundColor="#FFFFFF" Stroke="#0F172A" StrokeThickness="2">
+        <Border Grid.Row="2" Padding="2" BackgroundColor="#FFFFFF" Stroke="#0F172A" StrokeThickness="2">
             <controls:DrawingCanvasView
                 AddShapeCommand="{Binding AddShapeCommand}"
                 Document="{Binding Document}"
                 IsFillEnabled="{Binding IsFillEnabled}"
-                MinimumHeightRequest="560"
+                MinimumHeightRequest="420"
                 PreviewShape="{Binding PreviewShape, Mode=TwoWay}"
                 SelectedFillColor="{Binding SelectedFillColor}"
                 SelectedStrokeColor="{Binding SelectedStrokeColor}"

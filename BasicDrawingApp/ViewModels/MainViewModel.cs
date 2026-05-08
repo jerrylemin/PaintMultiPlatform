@@ -105,6 +105,12 @@ public sealed class MainViewModel : ViewModelBase
         {
             if (SetProperty(ref _selectedTool, value))
             {
+                OnPropertyChanged(nameof(PointToolBackground));
+                OnPropertyChanged(nameof(LineToolBackground));
+                OnPropertyChanged(nameof(RectangleToolBackground));
+                OnPropertyChanged(nameof(SquareToolBackground));
+                OnPropertyChanged(nameof(EllipseToolBackground));
+                OnPropertyChanged(nameof(CircleToolBackground));
                 SetLastAction($"Selected tool {SelectedTool}");
             }
         }
@@ -175,6 +181,18 @@ public sealed class MainViewModel : ViewModelBase
     public string StrokeColorName => GetColorName(StrokeColors, SelectedStrokeColor);
 
     public string FillColorName => GetColorName(FillColors, SelectedFillColor);
+
+    public Color PointToolBackground => GetToolBackground(ShapeKind.Point);
+
+    public Color LineToolBackground => GetToolBackground(ShapeKind.Line);
+
+    public Color RectangleToolBackground => GetToolBackground(ShapeKind.Rectangle);
+
+    public Color SquareToolBackground => GetToolBackground(ShapeKind.Square);
+
+    public Color EllipseToolBackground => GetToolBackground(ShapeKind.Ellipse);
+
+    public Color CircleToolBackground => GetToolBackground(ShapeKind.Circle);
 
     public string StatusMessage
     {
@@ -397,5 +415,10 @@ public sealed class MainViewModel : ViewModelBase
     {
         DrawingColorOption? option = options.FirstOrDefault(item => item.Value == color);
         return option?.Name ?? color.ToArgbHex();
+    }
+
+    private Color GetToolBackground(ShapeKind kind)
+    {
+        return SelectedTool == kind ? Color.FromArgb("#EA580C") : Color.FromArgb("#475569");
     }
 }
