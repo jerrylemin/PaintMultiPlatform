@@ -19,7 +19,7 @@ public sealed class MainViewModel : ViewModelBase
     private double _strokeThickness = 3;
     private bool _isFillEnabled;
     private DrawingShape? _previewShape;
-    private string _statusMessage = "Current tool: Line | Stroke: Black | Fill: Transparent | Thickness: 3 | Shapes: 0 | Last action: Ready";
+    private string _statusMessage = "Tool: Line | Stroke: Black | Fill: No Fill | Thickness: 3 px | Shapes: 0 | Ready";
     private string _lastAction = "Ready";
 
     public MainViewModel(
@@ -54,7 +54,7 @@ public sealed class MainViewModel : ViewModelBase
 
         FillColors =
         [
-            new("Transparent", Colors.Transparent),
+            new("No Fill", Colors.Transparent),
             new("Black", Colors.Black),
             new("Red", Colors.Red),
             new("Green", Colors.Green),
@@ -124,6 +124,7 @@ public sealed class MainViewModel : ViewModelBase
             if (SetProperty(ref _selectedStrokeColor, value))
             {
                 OnPropertyChanged(nameof(StrokeColorName));
+                OnStrokeSwatchesChanged();
                 SetLastAction($"Selected stroke {StrokeColorName}");
             }
         }
@@ -137,6 +138,7 @@ public sealed class MainViewModel : ViewModelBase
             if (SetProperty(ref _selectedFillColor, value))
             {
                 OnPropertyChanged(nameof(FillColorName));
+                OnFillSwatchesChanged();
                 SetLastAction($"Selected fill {FillColorName}");
             }
         }
@@ -156,7 +158,7 @@ public sealed class MainViewModel : ViewModelBase
         }
     }
 
-    public string StrokeThicknessText => $"{StrokeThickness:0}";
+    public string StrokeThicknessText => $"{StrokeThickness:0} px";
 
     public bool IsFillEnabled
     {
@@ -193,6 +195,36 @@ public sealed class MainViewModel : ViewModelBase
     public Color EllipseToolBackground => GetToolBackground(ShapeKind.Ellipse);
 
     public Color CircleToolBackground => GetToolBackground(ShapeKind.Circle);
+
+    public Color StrokeBlackBorder => GetStrokeBorder("Black");
+
+    public Color StrokeRedBorder => GetStrokeBorder("Red");
+
+    public Color StrokeGreenBorder => GetStrokeBorder("Green");
+
+    public Color StrokeBlueBorder => GetStrokeBorder("Blue");
+
+    public Color StrokeYellowBorder => GetStrokeBorder("Yellow");
+
+    public Color StrokePurpleBorder => GetStrokeBorder("Purple");
+
+    public Color StrokeOrangeBorder => GetStrokeBorder("Orange");
+
+    public Color FillNoFillBorder => GetFillBorder("No Fill");
+
+    public Color FillBlackBorder => GetFillBorder("Black");
+
+    public Color FillRedBorder => GetFillBorder("Red");
+
+    public Color FillGreenBorder => GetFillBorder("Green");
+
+    public Color FillBlueBorder => GetFillBorder("Blue");
+
+    public Color FillYellowBorder => GetFillBorder("Yellow");
+
+    public Color FillPurpleBorder => GetFillBorder("Purple");
+
+    public Color FillOrangeBorder => GetFillBorder("Orange");
 
     public string StatusMessage
     {
@@ -315,7 +347,13 @@ public sealed class MainViewModel : ViewModelBase
     {
         try
         {
-            string path = await _filePickerService.CreateSavePathAsync();
+            string? path = await _filePickerService.PickSaveBdrawPathAsync();
+            if (string.IsNullOrWhiteSpace(path))
+            {
+                SetLastAction("Save canceled");
+                return;
+            }
+
             await _serializer.SaveAsync(Document, path);
             SetLastAction($"Saved {path}");
         }
@@ -371,6 +409,10 @@ public sealed class MainViewModel : ViewModelBase
                 : await _imageExportService.ExportJpegAsync(Document);
             SetLastAction($"Exported {path}");
         }
+        catch (OperationCanceledException)
+        {
+            SetLastAction("Export canceled");
+        }
         catch (Exception ex)
         {
             SetLastAction($"Export failed: {ex.Message}");
@@ -386,7 +428,7 @@ public sealed class MainViewModel : ViewModelBase
     private void SetLastAction(string action)
     {
         _lastAction = action;
-        StatusMessage = $"Current tool: {SelectedTool} | Stroke: {StrokeColorName} | Fill: {FillColorName} | Stroke thickness: {StrokeThicknessText} | Shape count: {ShapeCount} | Last action: {_lastAction}";
+        StatusMessage = $"Tool: {SelectedTool} | Stroke: {StrokeColorName} | Fill: {FillColorName} | Thickness: {StrokeThicknessText} | Shapes: {ShapeCount} | {_lastAction}";
     }
 
     private static bool TryGetColor(object? parameter, IEnumerable<DrawingColorOption> options, out Color color)
@@ -419,6 +461,43 @@ public sealed class MainViewModel : ViewModelBase
 
     private Color GetToolBackground(ShapeKind kind)
     {
-        return SelectedTool == kind ? Color.FromArgb("#EA580C") : Color.FromArgb("#475569");
+        return SelectedTool == kind ? Color.FromArgb("#0F766E") : Color.FromArgb("#F8FAFC");
+    }
+
+    private Color GetStrokeBorder(string colorName)
+    {
+        return string.Equals(StrokeColorName, colorName, StringComparison.OrdinalIgnoreCase)
+            ? Color.FromArgb("#0F766E")
+            : Color.FromArgb("#CBD5E1");
+    }
+
+    private Color GetFillBorder(string colorName)
+    {
+        return string.Equals(FillColorName, colorName, StringComparison.OrdinalIgnoreCase)
+            ? Color.FromArgb("#0F766E")
+            : Color.FromArgb("#CBD5E1");
+    }
+
+    private void OnStrokeSwatchesChanged()
+    {
+        OnPropertyChanged(nameof(StrokeBlackBorder));
+        OnPropertyChanged(nameof(StrokeRedBorder));
+        OnPropertyChanged(nameof(StrokeGreenBorder));
+        OnPropertyChanged(nameof(StrokeBlueBorder));
+        OnPropertyChanged(nameof(StrokeYellowBorder));
+        OnPropertyChanged(nameof(StrokePurpleBorder));
+        OnPropertyChanged(nameof(StrokeOrangeBorder));
+    }
+
+    private void OnFillSwatchesChanged()
+    {
+        OnPropertyChanged(nameof(FillNoFillBorder));
+        OnPropertyChanged(nameof(FillBlackBorder));
+        OnPropertyChanged(nameof(FillRedBorder));
+        OnPropertyChanged(nameof(FillGreenBorder));
+        OnPropertyChanged(nameof(FillBlueBorder));
+        OnPropertyChanged(nameof(FillYellowBorder));
+        OnPropertyChanged(nameof(FillPurpleBorder));
+        OnPropertyChanged(nameof(FillOrangeBorder));
     }
 }
