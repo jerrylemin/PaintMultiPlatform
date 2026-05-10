@@ -1,43 +1,70 @@
 # Codex Project Audit
 
-## Current UI State Before This Upgrade
+## Repository Scan
 
-- The app had the required drawing functions, but the interface still looked like a rough row of text buttons.
-- The toolbar was visible after the previous fix, but it did not yet feel like a drawing app toolbar.
-- Stroke and fill colors were plain colored buttons with text, not compact visual swatches.
-- `Transparent` was shown as a fill color, which could confuse users into thinking it affected stroke transparency.
-- Thickness had a slider and number, but no clear `px` unit or visual stroke preview.
-- Save/export used generated paths. Windows did not let users browse and choose a save location.
-- Android export wrote to app data and opened share sheet, but did not attempt to publish the image to Gallery/Photos.
+- Read `README.md`.
+- Read all files under `docs/`.
+- Listed the whole repository, including generated `bin/` and `obj/` files.
+- Read source files outside generated folders, including `MainPage.xaml`, `MainPage.xaml.cs`, `MainViewModel.cs`, `DrawingBinarySerializer.cs`, `ImageExportService.cs`, save/load/export services, `Platforms/Android/*`, `Platforms/Windows/*`, `AndroidManifest.xml`, and `BasicDrawingApp.csproj`.
+- Generated folders were not edited.
 
-## Working Features
+## Stack And Entrypoints
 
-- Point, Line, Rectangle, Square, Ellipse, and Circle drawing use real canvas logic in `DrawingCanvasView` and `DrawingRenderer`.
-- Preview while dragging is implemented via `PreviewShape`.
-- Stroke color applies to all shapes.
-- Fill applies only to closed shapes when enabled.
-- Undo, redo, clear, binary save/load, and PNG/JPEG export are implemented.
+- App type: .NET MAUI single-project app.
+- Targets: `net9.0-android` and `net9.0-windows10.0.19041.0` on Windows.
+- Package manager: NuGet through `BasicDrawingApp.csproj`.
+- Entrypoint registration: `BasicDrawingApp/MauiProgram.cs`.
+- Main UI: `BasicDrawingApp/Views/MainPage.xaml`.
+- Main state: `BasicDrawingApp/ViewModels/MainViewModel.cs`.
 
-## UX Problems Found
+## Android Save `.bdraw` Finding
 
-- Color selection did not look like a paint palette.
-- The fill option did not explain why point/line ignore fill.
-- Choosing a fill color without enabling fill made shapes look unchanged.
-- Choosing `Transparent` made closed shapes draw only an outline; the label did not explain that this means no fill.
-- File actions did not match desktop expectations because Windows save operations did not open a local save picker.
+Before this fix, Android `Save .bdraw` wrote a file to:
 
-## Technical Findings
+`FileSystem.AppDataDirectory/Drawings/drawing_yyyyMMdd_HHmmss.bdraw`
 
-- `Transparent` is stored as `Colors.Transparent` and now appears as `No Fill`.
-- Fill is controlled by both `IsFillEnabled` and `SelectedFillColor`; if fill is off or `No Fill` is selected, closed shapes draw outline only.
-- Point uses stroke color for a solid dot. Line ignores fill.
-- Windows save/export now uses `Windows.Storage.Pickers.FileSavePicker`.
-- Android export writes the image to app storage, publishes it to MediaStore Pictures/BasicDrawingApp when available, and opens the share sheet.
+On Android this resolves to an app-private folder, typically:
 
-## Files Updated
+`/data/user/0/com.companyname.basicdrawingapp/files/Drawings`
 
-- `BasicDrawingApp/Views/MainPage.xaml`: redesigned ribbon-inspired toolbar and canvas surface.
-- `BasicDrawingApp/ViewModels/MainViewModel.cs`: clearer status, `No Fill`, swatch selected-state borders, save cancellation handling.
-- `BasicDrawingApp/Services/FilePickerService.cs`: Windows save picker and Android MediaStore publishing.
-- `BasicDrawingApp/Services/ImageExportService.cs`: platform-aware export path and publish result.
-- `README.md` and `docs/*.md`: updated project knowledge and test notes.
+That folder is valid for the app, but normal Android file picker and Photos/Gallery do not show it. The app then used FilePicker for load, so the user could not reliably select the private saved `.bdraw` file again. This made save look broken even when bytes were written.
+
+## Android Export Finding
+
+Before this fix, image export first wrote to `FileSystem.AppDataDirectory/Exports` and then attempted a MediaStore publish from that private file. The status was not clear enough for Android users, and the app still depended on a shared service that mixed private app storage with gallery publishing. If MediaStore insert or output stream failed, the fallback path was a private app path that Photos/Gallery cannot show.
+
+Photos/Gallery indexes MediaStore image entries, not arbitrary app-private files. PNG/JPEG export must write to `MediaStore.Images.Media.ExternalContentUri` with a correct display name and MIME type.
+
+## Load `.bdraw` Finding
+
+The binary loader already checked the `BDRAW` magic header, version, shape count, and shape records. The main Android problem was the source of the file, not the serializer format.
+
+Android FilePicker is useful for importing external `.bdraw` files, but it is not the right UI for app-private saved drawings. The fixed Android load flow now supports both:
+
+- `Load from App Files`: lists `.bdraw` files saved under the app documents folder.
+- `Import .bdraw`: opens Android FilePicker and reads the selected file stream.
+
+## Files Fixed
+
+- `BasicDrawingApp/MauiProgram.cs`: registers platform-specific file/gallery services.
+- `BasicDrawingApp/Services/FileServiceModels.cs`: adds shared service contracts and result records.
+- `BasicDrawingApp/Services/DrawingBinarySerializer.cs`: adds stream save/load support for Android FilePicker/content streams.
+- `BasicDrawingApp/Services/ImageExportService.cs`: renders PNG/JPEG bytes and delegates platform persistence.
+- `BasicDrawingApp/ViewModels/MainViewModel.cs`: uses platform services, clearer status messages, and debug logging on failures.
+- `BasicDrawingApp/Views/MainPage.xaml`: binds save button text per platform.
+- `BasicDrawingApp/Platforms/Android/AndroidDrawingFileService.cs`: saves `.bdraw` to app files and loads from internal list or import picker.
+- `BasicDrawingApp/Platforms/Android/AndroidImageGalleryService.cs`: writes PNG/JPEG directly to MediaStore.
+- `BasicDrawingApp/Platforms/Windows/WindowsDrawingFileService.cs`: uses Windows save/open picker for `.bdraw`.
+- `BasicDrawingApp/Platforms/Windows/WindowsImageSaveService.cs`: uses Windows save picker for PNG/JPEG.
+- `README.md`, `docs/codex_progress.md`, and `docs/codex_test_report.md`: updated Android behavior and verification notes.
+
+## Current Paths
+
+- Android `.bdraw`: `FileSystem.AppDataDirectory/BasicDrawingApp/drawing_yyyyMMdd_HHmmss.bdraw`.
+- Android gallery export: `Pictures/BasicDrawingApp/drawing_yyyyMMdd_HHmmss.png` or `.jpg` through MediaStore.
+- Windows `.bdraw`: user-selected Save Picker path.
+- Windows PNG/JPEG: user-selected Save Picker path.
+
+## Permissions
+
+No broad storage permission was added. Android 10+ MediaStore writes do not require `MANAGE_EXTERNAL_STORAGE`, and the app does not request it.

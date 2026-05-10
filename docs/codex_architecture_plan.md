@@ -8,7 +8,9 @@ The app stays in a simple MVVM structure:
 - `ViewModels`: `MainViewModel`, commands, selected tool/color/thickness/fill state.
 - `Views`: `MainPage.xaml` and `MainPage.xaml.cs`.
 - `Controls`: `DrawingCanvasView` and `DrawingRenderer`.
-- `Services`: `DrawingBinarySerializer`, `FilePickerService`, `ImageExportService`.
+- `Services`: `DrawingBinarySerializer`, file/gallery service contracts, `ImageExportService`.
+- `Platforms/Android`: Android `.bdraw` app-file service and MediaStore image gallery service.
+- `Platforms/Windows`: Windows `.bdraw` and image save picker services.
 
 ## UI Direction
 
@@ -41,8 +43,9 @@ Toolbar groups:
 - `.bdraw` save/load stays binary through `DrawingBinarySerializer`.
 - Windows save/export uses `FileSavePicker` so users can browse and choose a local path.
 - Windows load uses MAUI `FilePicker`.
-- Android `.bdraw` save uses app storage.
-- Android image export writes to app storage, publishes to MediaStore Pictures/BasicDrawingApp when supported, and opens share sheet.
+- Android `.bdraw` save uses app-private storage under `FileSystem.AppDataDirectory/BasicDrawingApp`.
+- Android `.bdraw` load offers an app-file list and external import picker.
+- Android image export writes directly to MediaStore `Pictures/BasicDrawingApp` with `image/png` or `image/jpeg`.
 
 ## Build Target
 

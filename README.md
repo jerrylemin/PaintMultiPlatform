@@ -62,14 +62,27 @@ If a selected fill color does not appear, check that:
 
 - Windows: `Save .bdraw` opens a save picker so you can choose the folder and filename.
 - Windows: `Load .bdraw` opens a file picker for existing `.bdraw` files.
-- Android: `.bdraw` save uses app storage and reports the saved path.
+- Android: `Save .bdraw to App Files` saves to the app-private documents folder under `FileSystem.AppDataDirectory/BasicDrawingApp` with a filename like `drawing_yyyyMMdd_HHmmss.bdraw`.
+- Android: saved `.bdraw` files are private app files, so they do not appear in Android Photos/Gallery. Use `Load .bdraw` then choose `Load from App Files` to reopen drawings saved by the app.
+- Android: `Load .bdraw` also offers `Import .bdraw`, which opens Android FilePicker for `.bdraw` files stored outside the app.
 - `.bdraw` is a custom binary format using `BinaryWriter` and `BinaryReader`.
 
 ## Export PNG/JPEG
 
 - Windows: `Export PNG` and `Export JPEG` open a save picker.
-- Android: export writes the image to app storage, publishes it to `Pictures/BasicDrawingApp` through MediaStore when supported, and opens the share sheet.
+- Android: `Export PNG` and `Export JPEG` write directly to Android MediaStore as `image/png` or `image/jpeg`.
+- Android: exported images appear in Photos/Gallery under `Pictures/BasicDrawingApp` with filenames like `drawing_yyyyMMdd_HHmmss.png` or `.jpg`.
 - Exported images use a white background and include the full canvas.
+
+## Android Quick Demo Test
+
+1. Open the app on an Android emulator or device.
+2. Draw Point, Line, Rectangle, Square, Ellipse, and Circle.
+3. Tap `Save .bdraw to App Files`; confirm the status shows the saved filename and app documents location.
+4. Tap `Clear`, then `Load .bdraw` > `Load from App Files`, and choose the saved file.
+5. Confirm the shape count and drawing are restored, then draw one more shape.
+6. Tap `Export PNG`, open Photos/Gallery, and check `Pictures/BasicDrawingApp`.
+7. Tap `Export JPEG`, open Photos/Gallery, and check the JPEG opens normally.
 
 ## Run In Visual Studio
 
