@@ -23,7 +23,15 @@ public static class MauiProgram
 #endif
 
         builder.Services.AddSingleton<DrawingBinarySerializer>();
+#if ANDROID
+        builder.Services.AddSingleton<IDrawingFileService, BasicDrawingApp.Platforms.Android.AndroidDrawingFileService>();
+        builder.Services.AddSingleton<IImageGalleryService, BasicDrawingApp.Platforms.Android.AndroidImageGalleryService>();
+#elif WINDOWS
+        builder.Services.AddSingleton<IDrawingFileService, BasicDrawingApp.Platforms.Windows.WindowsDrawingFileService>();
+        builder.Services.AddSingleton<IImageGalleryService, BasicDrawingApp.Platforms.Windows.WindowsImageSaveService>();
+#else
         builder.Services.AddSingleton<FilePickerService>();
+#endif
         builder.Services.AddSingleton<ImageExportService>();
         builder.Services.AddSingleton<MainViewModel>();
         builder.Services.AddTransient<MainPage>();

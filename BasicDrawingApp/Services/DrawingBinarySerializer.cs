@@ -10,6 +10,11 @@ public sealed class DrawingBinarySerializer
     public async Task SaveAsync(DrawingDocument document, string filePath)
     {
         await using FileStream stream = File.Create(filePath);
+        await SaveAsync(document, stream);
+    }
+
+    public async Task SaveAsync(DrawingDocument document, Stream stream)
+    {
         using BinaryWriter writer = new(stream);
 
         writer.Write(Magic);
@@ -39,6 +44,11 @@ public sealed class DrawingBinarySerializer
     public async Task<DrawingDocument> LoadAsync(string filePath)
     {
         await using FileStream stream = File.OpenRead(filePath);
+        return await LoadAsync(stream);
+    }
+
+    public Task<DrawingDocument> LoadAsync(Stream stream)
+    {
         using BinaryReader reader = new(stream);
 
         try
@@ -85,7 +95,7 @@ public sealed class DrawingBinarySerializer
                 });
             }
 
-            return document;
+            return Task.FromResult(document);
         }
         catch (EndOfStreamException ex)
         {

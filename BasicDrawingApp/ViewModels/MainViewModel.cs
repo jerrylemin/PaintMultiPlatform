@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Windows.Input;
 using BasicDrawingApp.Models;
 using BasicDrawingApp.Services;
@@ -9,7 +10,7 @@ public sealed class MainViewModel : ViewModelBase
 {
     private readonly DrawingBinarySerializer _serializer;
     private readonly ImageExportService _imageExportService;
-    private readonly FilePickerService _filePickerService;
+    private readonly IDrawingFileService _drawingFileService;
     private readonly Stack<DrawingShape> _undoStack = [];
     private readonly Stack<DrawingShape> _redoStack = [];
     private DrawingDocument _document = new();
@@ -25,11 +26,11 @@ public sealed class MainViewModel : ViewModelBase
     public MainViewModel(
         DrawingBinarySerializer serializer,
         ImageExportService imageExportService,
-        FilePickerService filePickerService)
+        IDrawingFileService drawingFileService)
     {
         _serializer = serializer;
         _imageExportService = imageExportService;
-        _filePickerService = filePickerService;
+        _drawingFileService = drawingFileService;
 
         ToolOptions =
         [
@@ -232,6 +233,8 @@ public sealed class MainViewModel : ViewModelBase
         private set => SetProperty(ref _statusMessage, value);
     }
 
+    public string SaveButtonText => _drawingFileService.SaveButtonText;
+
     public ICommand SelectToolCommand { get; }
 
     public ICommand SelectStrokeColorCommand { get; }
@@ -347,18 +350,18 @@ public sealed class MainViewModel : ViewModelBase
     {
         try
         {
-            string? path = await _filePickerService.PickSaveBdrawPathAsync();
-            if (string.IsNullOrWhiteSpace(path))
+            DrawingFileSaveResult? result = await _drawingFileService.SaveAsync(Document, _serializer);
+            if (result is null)
             {
                 SetLastAction("Save canceled");
                 return;
             }
 
-            await _serializer.SaveAsync(Document, path);
-            SetLastAction($"Saved {path}");
+            SetLastAction(result.UserMessage);
         }
         catch (Exception ex)
         {
+            Debug.WriteLine(ex);
             SetLastAction($"Save failed: {ex.Message}");
         }
     }
@@ -367,25 +370,27 @@ public sealed class MainViewModel : ViewModelBase
     {
         try
         {
-            string? path = await _filePickerService.PickBdrawFileAsync();
-            if (string.IsNullOrWhiteSpace(path))
+            DrawingFileLoadResult? result = await _drawingFileService.LoadAsync(_serializer);
+            if (result is null)
             {
                 SetLastAction("Load canceled");
                 return;
             }
 
-            Document = await _serializer.LoadAsync(path);
+            Document = result.Document;
             PreviewShape = null;
             _undoStack.Clear();
             _redoStack.Clear();
-            OnDocumentChanged($"Loaded {path}");
+            OnDocumentChanged(result.UserMessage);
         }
         catch (InvalidDataException ex)
         {
+            Debug.WriteLine(ex);
             SetLastAction($"Invalid .bdraw file: {ex.Message}");
         }
         catch (Exception ex)
         {
+            Debug.WriteLine(ex);
             SetLastAction($"Load failed: {ex.Message}");
         }
     }
@@ -415,6 +420,7 @@ public sealed class MainViewModel : ViewModelBase
         }
         catch (Exception ex)
         {
+            Debug.WriteLine(ex);
             SetLastAction($"Export failed: {ex.Message}");
         }
     }

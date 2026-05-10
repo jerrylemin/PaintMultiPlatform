@@ -95,7 +95,7 @@
                                 <Button Text="Undo" Command="{Binding UndoCommand}" />
                                 <Button Grid.Column="1" Text="Redo" Command="{Binding RedoCommand}" />
                                 <Button Grid.Column="2" Text="Clear" Command="{Binding ClearCommand}" />
-                                <Button Grid.Column="3" Text="Save .bdraw" Command="{Binding SaveCommand}" />
+                                <Button Grid.Column="3" Text="{Binding SaveButtonText}" Command="{Binding SaveCommand}" />
                                 <Button Grid.Row="1" Text="Load .bdraw" Command="{Binding LoadCommand}" />
                                 <Button Grid.Row="1" Grid.Column="1" Text="Export PNG" Command="{Binding ExportPngCommand}" />
                                 <Button Grid.Row="1" Grid.Column="2" Grid.ColumnSpan="2" Text="Export JPEG" Command="{Binding ExportJpegCommand}" />
