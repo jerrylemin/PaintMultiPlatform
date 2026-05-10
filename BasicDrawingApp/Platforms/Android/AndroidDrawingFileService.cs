@@ -29,7 +29,7 @@ public sealed class AndroidDrawingFileService : IDrawingFileService
         return new DrawingFileSaveResult(
             fileName,
             path,
-            $"Saved to app documents: {fileName} ({file.Length} bytes)");
+            $"Saved to app documents: {fileName} ({file.Length} bytes). Use Load .bdraw > Load from App Files.");
     }
 
     public async Task<DrawingFileLoadResult?> LoadAsync(DrawingBinarySerializer serializer)

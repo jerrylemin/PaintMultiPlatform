@@ -56,7 +56,7 @@ public sealed class AndroidImageGalleryService : IImageGalleryService
             return new ImageSaveResult(
                 fileName,
                 "Photos/Gallery > Pictures/BasicDrawingApp",
-                $"Exported to Photos/Gallery: {fileName}");
+                $"Exported to Photos/Gallery: {fileName} in Pictures/BasicDrawingApp");
         }
         catch
         {
