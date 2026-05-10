@@ -6,11 +6,11 @@ namespace BasicDrawingApp.Services;
 
 public sealed class ImageExportService
 {
-    private readonly FilePickerService _filePickerService;
+    private readonly IImageGalleryService _imageGalleryService;
 
-    public ImageExportService(FilePickerService filePickerService)
+    public ImageExportService(IImageGalleryService imageGalleryService)
     {
-        _filePickerService = filePickerService;
+        _imageGalleryService = imageGalleryService;
     }
 
     public Task<string> ExportPngAsync(DrawingDocument document)
@@ -27,12 +27,6 @@ public sealed class ImageExportService
     {
         int width = Math.Max(1, (int)MathF.Ceiling(document.CanvasWidth));
         int height = Math.Max(1, (int)MathF.Ceiling(document.CanvasHeight));
-        string? filePath = await _filePickerService.PickExportPathAsync(extension);
-        if (string.IsNullOrWhiteSpace(filePath))
-        {
-            throw new OperationCanceledException("Export canceled.");
-        }
-
         using SKBitmap bitmap = new(width, height);
         using SKCanvas canvas = new(bitmap);
         DrawingRenderer.DrawDocument(canvas, document);
@@ -40,20 +34,16 @@ public sealed class ImageExportService
 
         using SKImage image = SKImage.FromBitmap(bitmap);
         using SKData data = image.Encode(format, quality);
-        await using FileStream stream = File.Create(filePath);
-        data.SaveTo(stream);
-        await stream.FlushAsync();
+        byte[] imageBytes = data.ToArray();
+        string mimeType = format == SKEncodedImageFormat.Jpeg ? "image/jpeg" : "image/png";
+        string fileName = $"drawing_{DateTime.Now:yyyyMMdd_HHmmss}.{extension.TrimStart('.')}";
 
-#if ANDROID
-        string resultPath = await _filePickerService.PublishImageAsync(filePath, extension);
-        await Share.Default.RequestAsync(new ShareFileRequest
+        ImageSaveResult? result = await _imageGalleryService.SaveImageAsync(imageBytes, extension, mimeType, fileName);
+        if (result is null)
         {
-            Title = "Share exported drawing",
-            File = new ShareFile(filePath)
-        });
-#else
-        string resultPath = filePath;
-#endif
-        return resultPath;
+            throw new OperationCanceledException("Export canceled.");
+        }
+
+        return result.UserMessage;
     }
 }
