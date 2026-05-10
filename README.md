@@ -105,8 +105,3 @@ Android:
 dotnet build BasicDrawingApp\BasicDrawingApp.csproj -f net9.0-android
 dotnet build BasicDrawingApp\BasicDrawingApp.csproj -f net9.0-android -t:Run
 ```
-
-## GitHub Notes
-
-- Do not commit personal access tokens.
-- If a private repository needs a grading token, create a read-only token with expiration and send it privately.
